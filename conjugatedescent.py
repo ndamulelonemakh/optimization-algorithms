@@ -20,14 +20,15 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-class GradientDescent:
+class ConjugateGradientDescent:
     def __init__(self, max_iterations=10, hessian_matrix=None, linear_terms=None):
         self.Hessian: np.ndarray = hessian_matrix or np.array([[10, 4], [4, 2]])
         self.LinearCoefficients = linear_terms or np.array([-14, -6])
+        self.ConstantTerm = 20
         self.Minimiser = np.array([0, 0])
         self.CurrentIteration = 0
         self.MaxIterations = max_iterations
-        self.Epsilon = math.pow(10, -6)  # Stop if magnitude of gradient is less than this value
+        self.Epsilon = math.pow(10, -3)  # Stop if magnitude of gradient is less than this value
         self._LastConjugate = None  # Track gradient in current iteration - 1 step
 
     @property
@@ -35,12 +36,12 @@ class GradientDescent:
         gradient = self.del_f(self.Minimiser)
         return np.sqrt(gradient.dot(gradient))
 
-    @staticmethod
-    def f(xk, decimal_places=3):
-        x1 = xk[0]
-        x2 = xk[1]
-        fn_value = 5*math.pow(x1, 2) + math.pow(x2, 2) + 4*x1*x2 - 14*x1 - 6*x2 + 20
-        return round(fn_value, decimal_places)
+    def f(self, xk: np.ndarray, decimal_places=3):
+        """Returns the function value calcultaed from the equivalent quadratic form"""
+        squared_terms = 0.5 * xk.dot(self.Hessian).dot(xk)
+        linear_terms = self.LinearCoefficients.dot(xk)
+        total_cost = squared_terms + linear_terms + self.ConstantTerm
+        return round(total_cost, decimal_places)
 
     def del_f(self, xk: np.ndarray) -> np.ndarray:
         gradient_vector = np.matmul(self.Hessian, xk)
@@ -69,7 +70,7 @@ class GradientDescent:
         return round(step_length, decimal_places) * -1
 
     def _find_next_candidate(self):
-        """Get next potential minimum using X_k+1 = X_k + alpha * del_F(Xk)"""
+        """Get next potential minimum using X_k+1 = X_k + alpha * pk"""
         xk = self.Minimiser
         gk = self.del_f(xk)
         pk = self.conjugate_direction(gk)
@@ -80,7 +81,6 @@ class GradientDescent:
 
     def execute(self):
         log.info('Conjugate gradient descent iteration started')
-        # self.__preview_config()
         for k in range(self.MaxIterations):
             log.debug(f"-----------Iteration {k}--------------")
             self.CurrentIteration = k

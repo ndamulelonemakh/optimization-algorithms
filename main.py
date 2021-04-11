@@ -1,9 +1,10 @@
+import conjugatedescent
 import coordinatedescent
 import gradientdescent
 
 
 def main():
-    optimizer = gradientdescent.GradientDescent()
+    optimizer = conjugatedescent.ConjugateGradientDescent()
     minimiser, min_value, gradient = optimizer.execute()
     result = f'''
     =====Function F(X1, X2) has a local minimum at {minimiser}=========
