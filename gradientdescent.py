@@ -21,12 +21,13 @@ log = logging.getLogger(__name__)
 
 
 class GradientDescent:
-    def __init__(self, max_iterations=60, hessian_matrix=None, linear_terms=None):
+    def __init__(self, max_iterations=100, hessian_matrix=None, linear_terms=None):
         self.Hessian: np.ndarray = hessian_matrix or np.array([[10, 4], [4, 2]])
         self.LinearCoefficients = linear_terms or np.array([-14, -6])
         self.Minimiser = np.array([0, 0])
         self.CurrentIteration = 0
         self.MaxIterations = max_iterations
+        self.Epsilon = 0.0001  # Stop if magnitude of gradient is less than this value
 
     @property
     def __current_gradient_value(self):
@@ -74,6 +75,9 @@ class GradientDescent:
             self.CurrentIteration = k
             self.Minimiser = self._find_next_candidate()
             log.debug(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------\n")
+            if self.__current_gradient_value <= self.Epsilon:
+                log.warning(f"Iteration stopped at k={k}. Stopping condition reached!")
+                break
         log.info(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------")
         log.info('Coordinate descent completed successfully')
         return self.Minimiser, self.f(self.Minimiser), round(self.__current_gradient_value, 3)
