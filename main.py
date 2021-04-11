@@ -8,13 +8,12 @@ log = logging.getLogger(__name__)
 
 
 class CoordinateDescent:
-    def __init__(self, max_iterations=1000, no_of_dimensions=2, step_length=.1):
-        self.IndexSet = tuple([i for i in range(1, no_of_dimensions + 1)])
-        self.Minimiser: np.ndarray = np.array([0, 0])
+    def __init__(self, max_iterations=1000, no_of_dimensions=2, step_length=0.1):
         self.Dimensions = no_of_dimensions
         self.StepLength = step_length
         self.MaxIterations = max_iterations
         self.CurrentIteration = 0
+        self.Minimiser: np.ndarray = np.array([0, 0])
 
     @property
     def _current_coordinate_idx(self):
@@ -37,6 +36,13 @@ class CoordinateDescent:
         del_f = np.array([del_fx1, del_fx2])
         return del_f
 
+    @staticmethod
+    def f(xk, decimal_places=3):
+        x1 = xk[0]
+        x2 = xk[1]
+        fn_value = x1 - x2 + 2*math.pow(x1, 2) + 2*x1*x2 * math.pow(x2, 2)
+        return round(fn_value, decimal_places)
+
     @property
     def __current_gradient_value(self):
         del_f = self.__current_gradient(self.Minimiser)
@@ -52,8 +58,9 @@ class CoordinateDescent:
         configs = f'''
                    Configuration Preview
                    ========================
+                   n              = {self.Dimensions}
                    Step Length    = {self.StepLength}
-                   ik (Index set) = {self.IndexSet}
+                   Max Iterations = {self.MaxIterations}
                    '''
         log.debug(configs)
         return configs
@@ -76,11 +83,18 @@ class CoordinateDescent:
             log.debug(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------\n")
         log.info(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------")
         log.info('Coordinate descent completed successfully')
+        return self.Minimiser, self.f(self.Minimiser), round(self.__current_gradient_value, 3)
 
 
 def main():
-    algo = CoordinateDescent()
-    algo.execute()
+    optimizer = CoordinateDescent()
+    minimiser, min_value, gradient = optimizer.execute()
+    result = f'''
+    =====Function F(X1, X2) has a local minimum at {minimiser}=========
+      - Min Value = {min_value}
+      - Slope     = {gradient} 
+    '''
+    print(result.strip())
 
 
 if __name__ == '__main__':
