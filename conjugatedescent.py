@@ -5,12 +5,7 @@
 - At each step the value of X will be updated using
     X_k+1 = X_k + alpha * Pk
 
-- Initial guess of the minimiser is a point X_0 = [0, 0]
-- The value of alpha will be calculated using an exact line search
-
-    alpha = || gk || ** 2 / gk_T * A * gk
-
-    where gk is the gradient vector at point Xk and A is the hessian matrix
+    Where pk is the conjugate direction and alpha is the step length
 """
 import math
 import logging
