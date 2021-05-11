@@ -1,18 +1,14 @@
 """Example implementation of the Coordinate Descent algorithm in Python
 
-- The objective function is
-
-  F(X1, X2) = X1 - X2 + 2X1**2 + 2X1X2 + X2**2
-
-- The minimum of this function will be found by iteratively minimizing individual coordinates
-  in a cyclic manner
+- The minimum value of F(x) is computed iteratively by minimizing individual coordinates in a cyclic manner
 - On each iteration the active coordinate is updated as follows
 
   X_k+1 = X_k - alpha * [del_F(xk)] * e
 
-  Where alpha is the step length,
-  e the active co-ordinate vector,
-  and del_F(xk) the component of the gradient corresponding to the active coordinate
+  Where
+  * alpha : step length,
+  * e : the active co-ordinate vector(required to make vector addition to Xk possible),
+  * del_F(xk) : component of the gradient corresponding to the active coordinate
 """
 
 import logging
@@ -61,6 +57,7 @@ class CoordinateDescent:
 
     @staticmethod
     def __current_gradient(xk):
+        #  Example: F(X1, X2) = X1 - X2 + 2X1**2 + 2X1X2 + X2**2
         x1 = xk[0]
         x2 = xk[1]
         del_fx1 = 1 + 4 * x1 + 2 * x2
