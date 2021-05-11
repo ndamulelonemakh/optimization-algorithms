@@ -1,4 +1,4 @@
-"""Naive implementation of the Coordinate Descent algorithm in Python
+"""Example implementation of the Coordinate Descent algorithm in Python
 
 - The objective function is
 
@@ -48,8 +48,9 @@ class CoordinateDescent:
 
     @property
     def _current_coordinate_idx(self):
+        # Choose next cordinate to optimize, in a CYCLIC manner
         next_idx = lambda i: i % 2 + 1
-        return 1 if self.CurrentIteration == 0 else next_idx(self.CurrentIteration)
+        return next_idx(self.CurrentIteration)
 
     @property
     def _ith_coordinate_vector(self):
@@ -102,5 +103,5 @@ class CoordinateDescent:
             self.Minimiser = self.__find_next_candidate()
             log.debug(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------\n")
         log.info(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------")
-        log.info('Coordinate descent completed successfully')
+        log.info(f'Coordinate descent completed successfully. Total Iterations={self.CurrentIteration}')
         return self.Minimiser, self.f(self.Minimiser), round(self.__current_gradient_value, 3)
