@@ -1,4 +1,4 @@
-# example implementations of mathematical optimization algorithms
+# Implementations of mathematical optimization algorithms from scratch in python
 
 * Featuring:
   * Steepest gradient descent
