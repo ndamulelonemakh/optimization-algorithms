@@ -1,0 +1,12 @@
+
+## knn mode seeking algorithm
+
+
+For each input point xi:
+
+• Define a pointer to the point within the k-nearest neighbors of xi with the highest
+kNN-density.
+
+• Repeat the process by following pointers from the initial pointer until a pointer
+that points to itself is found.
+  * This will be taken as the local mode of ^ fkNN(x).
