@@ -12,7 +12,6 @@
 """
 
 import logging
-import functools
 import numpy as np
 import math
 
@@ -24,20 +23,23 @@ __version__ = 0.01
 
 
 class CoordinateDescent:
-    def __init__(self, max_iterations=500, no_of_dimensions=2, step_length=0.1):
+    def __init__(self, max_iterations=500, no_of_dimensions=2, step_length=1, fixed_step_length=True):
         self.Dimensions = no_of_dimensions
         self.StepLength = step_length
+        self.FixedStepLength = fixed_step_length
         self.MaxIterations = max_iterations
         self.CurrentIteration = 0
         self.Minimiser: np.ndarray = np.array([0, 0])
+        self.ConvergenceThreshold = 10e-4
 
     def __preview_config(self):
         configs = f'''
                    Configuration Preview
                    ========================
-                   n              = {self.Dimensions}
-                   Step Length    = {self.StepLength}
-                   Max Iterations = {self.MaxIterations}
+                   n                   = {self.Dimensions}
+                   Step Length         = {self.StepLength}
+                   Fixed Step Length   = {self.FixedStepLength}
+                   Max Iterations      = {self.MaxIterations}
                    '''
         log.debug(configs)
         return configs
@@ -56,7 +58,7 @@ class CoordinateDescent:
         return v
 
     @staticmethod
-    def __current_gradient(xk):
+    def __current_gradient(xk) -> np.ndarray:
         #  Example: F(X1, X2) = X1 - X2 + 2X1**2 + 2X1X2 + X2**2
         x1 = xk[0]
         x2 = xk[1]
@@ -75,8 +77,8 @@ class CoordinateDescent:
     @property
     def __current_gradient_value(self):
         del_f = self.__current_gradient(self.Minimiser)
-        sqaured_sum = functools.reduce(lambda a, b: a ** 2 + b ** 2, del_f)
-        return math.sqrt(sqaured_sum)
+        # sqaured_sum = functools.reduce(lambda a, b: a ** 2 + b ** 2, del_f)
+        return np.sqrt(del_f.dot(del_f))
 
     @property
     def __current_coordinate_gradient(self):
@@ -98,7 +100,11 @@ class CoordinateDescent:
             log.debug(f"-----------Iteration {k}--------------")
             self.CurrentIteration = k
             self.Minimiser = self.__find_next_candidate()
-            log.debug(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------\n")
+            log.debug(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient(self.Minimiser)} or "
+                      f"{self.__current_gradient_value}--------\n")
+            if self.__current_gradient_value <= self.ConvergenceThreshold:
+                log.warning('Convergence condition satisfied, STOP!')
+                break
         log.info(f"------Minimiser = {self.Minimiser}. Gradient = {self.__current_gradient_value}--------")
         log.info(f'Coordinate descent completed successfully. Total Iterations={self.CurrentIteration}')
         return self.Minimiser, self.f(self.Minimiser), round(self.__current_gradient_value, 3)
